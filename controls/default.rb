@@ -1,4 +1,3 @@
-## Start of CIS Workbench Level 1 Checks ##
 # CIS Workbench Level 1 - Section 1
 control '1.1.1.1' do
   impact 1.0
