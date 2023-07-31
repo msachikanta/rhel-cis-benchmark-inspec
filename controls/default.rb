@@ -2061,7 +2061,7 @@ end
 control '6.2.6' do
   impact 1.0
   title "Ensure root PATH Integrity"
-  describe command('sh .files/scripts/6.2.6_check_root_path_integrity.sh') do
+  describe command('sh ../files/scripts/6.2.6_check_root_path_integrity.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2069,7 +2069,7 @@ end
 control '6.2.7' do
   impact 1.0
   title "Ensure all user's home directories exist"
-  describe command('sh .files/scripts/6.2.7_check_users_home_dir_exists.sh') do
+  describe command('sh ../files/scripts/6.2.7_check_users_home_dir_exists.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2077,7 +2077,7 @@ end
 control '6.2.8' do
   impact 1.0
   title "Ensure user's home directories permissions are 750 or more restrictive"
-  describe command('sh .files/scripts/6.2.8_check_home_dir_permissions.sh') do
+  describe command('sh ../files/scripts/6.2.8_check_home_dir_permissions.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2085,7 +2085,7 @@ end
 control '6.2.9' do
   impact 1.0
   title 'Ensure users own their home directories'
-  describe command('sh .files/scripts/6.2.9_check_user_own_their_home_dir.sh') do
+  describe command('sh ../files/scripts/6.2.9_check_user_own_their_home_dir.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2093,7 +2093,7 @@ end
 control '6.2.10' do
   impact 1.0
   title "Ensure user's dot files are  group or world writable"
-  describe command('sh .files/scripts/6.2.10_check_dot.sh') do
+  describe command('sh ../files/scripts/6.2.10_check_dot.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2101,7 +2101,7 @@ end
 control '6.2.11' do
   impact 1.0
   title 'Ensure no users have .forward files'
-  describe command('sh .files/scripts/6.2.11_check_forward.sh') do
+  describe command('sh ../files/scripts/6.2.11_check_forward.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2109,7 +2109,7 @@ end
 control '6.2.12' do
   impact 1.0
   title 'Ensure no users have .netrc files'
-  describe command('sh .files/scripts/6.2.12_check_netrc.sh') do
+  describe command('sh ../files/scripts/6.2.12_check_netrc.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2117,7 +2117,7 @@ end
 control '6.2.14' do
   impact 1.0
   title 'Ensure no users have .rhosts files'
-  describe command('sh .files/scripts/6.2.14_check_rhosts.sh') do
+  describe command('sh ../files/scripts/6.2.14_check_rhosts.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2125,7 +2125,7 @@ end
 control '6.2.15' do
   impact 1.0
   title 'Ensure all groups in /etc/passwd exist in /etc/group'
-  describe command('sh .files/scripts/6.2.15_check_all_groups.sh') do
+  describe command('sh ../files/scripts/6.2.15_check_all_groups.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2133,7 +2133,7 @@ end
 control '6.2.16' do
   impact 1.0
   title 'Ensure no duplicate UIDs exist'
-  describe command('sh .files/scripts/6.2.16_check_duplicate_uids.sh') do
+  describe command('sh ../files/scripts/6.2.16_check_duplicate_uids.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2141,7 +2141,7 @@ end
 control '6.2.17' do
   impact 1.0
   title 'Ensure no duplicate GIDs exist'
-  describe command('sh .files/scripts/6.2.17_check_duplicate_gids.sh') do
+  describe command('sh ../files/scripts/6.2.17_check_duplicate_gids.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2149,7 +2149,7 @@ end
 control '6.2.18' do
   impact 1.0
   title 'Ensure no duplicate user names exist'
-  describe command('sh .files/scripts/6.2.18_check_duplicate_user_names.sh') do
+  describe command('sh ../files/scripts/6.2.18_check_duplicate_user_names.sh') do
     its('stdout') { should match "" }
   end
 end
@@ -2157,7 +2157,7 @@ end
 control '6.2.19' do
   impact 1.0
   title 'Ensure no duplicate group names exist'
-  describe command('sh .files/scripts/6.2.19_check_duplicate_groups.sh') do
+  describe command('sh ../files/scripts/6.2.19_check_duplicate_groups.sh') do
     its('stdout') { should match "" }
   end
 end
