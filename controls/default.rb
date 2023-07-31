@@ -2058,106 +2058,287 @@ control '6.2.5' do
   end
 end
 
-control '6.2.6' do
+control 'SCORED | 6.2.6 | PATCH' do
   impact 1.0
   title "Ensure root PATH Integrity"
-  describe command('sh ../files/scripts/6.2.6_check_root_path_integrity.sh') do
+  6_2_6_check_root_path_integrity = <<-EOH
+    #!/bin/bash
+    # script to check and ensure root PATH Integrity
+    for x in $(echo $PATH | tr ":" " ") ; do
+      if [ -d "$x" ] ; then
+        ls -ldH "$x" | awk '
+    $9 == "." {print "PATH contains current working directory (.)"}
+    $3 != "root" {print $9, "is not owned by root"}
+    substr($1,6,1) != "-" {print $9, "is group writable"}
+    substr($1,9,1) != "-" {print $9, "is world writable"}'
+      else
+        echo "$x is not a directory"
+      fi
+    done
+  EOH
+  describe bash(6_2_6_check_root_path_integrity) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.7' do
+control 'SCORED | 6.2.7 | PATCH' do
   impact 1.0
   title "Ensure all user's home directories exist"
-  describe command('sh ../files/scripts/6.2.7_check_users_home_dir_exists.sh') do
+  6_2_7_check_users_home_dir_exists = <<-EOH
+    #!/bin/bash
+    # script to check and ensure all user's home directories exist
+    grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
+      if [ ! -d "$dir" ]; then
+        echo "The home directory ($dir) of user $user does not exist."
+      else
+        dirperm=$(ls -ld $dir | cut -f1 -d" ")
+        if [ $(echo $dirperm | cut -c6) != "-" ]; then
+          echo "Group Write permission set on the home directory ($dir) of user $user"
+        fi
+        if [ $(echo $dirperm | cut -c8) != "-" ]; then
+          echo "Other Read permission set on the home directory ($dir) of user $user"
+        fi
+        if [ $(echo $dirperm | cut -c9) != "-" ]; then
+          echo "Other Write permission set on the home directory ($dir) of user $user"
+        fi
+        if [ $(echo $dirperm | cut -c10) != "-" ]; then
+          echo "Other Execute permission set on the home directory ($dir) of user $user"
+        fi
+      fi
+    done
+  EOH
+  describe bash(6_2_7_check_users_home_dir_exists) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.8' do
+control 'SCORED | 6.2.8 | PATCH' do
   impact 1.0
   title "Ensure user's home directories permissions are 750 or more restrictive"
-  describe command('sh ../files/scripts/6.2.8_check_home_dir_permissions.sh') do
+  6_2_8_check_home_dir_permissions = <<-EOH
+    #!/bin/bash
+    # script to check and ensure user's home directories permissions are 750 or more restrictive
+    grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
+      if [ ! -d "$dir" ]; then
+        echo "The home directory ($dir) of user $user does not exist."
+      else
+        dirperm=$(ls -ld $dir | cut -f1 -d" ")
+        if [ $(echo $dirperm | cut -c6) != "-" ]; then
+          echo "Group Write permission set on the home directory ($dir) of user $user"
+        fi
+        if [ $(echo $dirperm | cut -c8) != "-" ]; then
+          echo "Other Read permission set on the home directory ($dir) of user $user"
+        fi
+        if [ $(echo $dirperm | cut -c9) != "-" ]; then
+          echo "Other Write permission set on the home directory ($dir) of user $user"
+        fi
+        if [ $(echo $dirperm | cut -c10) != "-" ]; then
+          echo "Other Execute permission set on the home directory ($dir) of user $user"
+        fi
+      fi
+    done
+  EOH
+  describe bash(6_2_8_check_home_dir_permissions) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.9' do
+control 'SCORED | 6.2.9 | PATCH' do
   impact 1.0
   title 'Ensure users own their home directories'
-  describe command('sh ../files/scripts/6.2.9_check_user_own_their_home_dir.sh') do
+  6_2_9_check_user_own_their_home_dir = <<-EOH
+    #!/bin/bash
+    # script to check and ensure users own their home directories
+    grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
+      if [ ! -d "$dir" ]; then
+        echo "The home directory ($dir) of user $user does not exist."
+      else
+       owner=$(stat -L -c "%U" "$dir")
+       if [ "$owner" != "$user" ]; then
+         echo "The home directory ($dir) of user $user is owned by $owner."
+       fi
+     fi
+    done
+  EOH
+  describe bash(6_2_9_check_user_own_their_home_dir) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.10' do
+control 'SCORED | 6.2.10 | PATCH' do
   impact 1.0
-  title "Ensure user's dot files are  group or world writable"
-  describe command('sh ../files/scripts/6.2.10_check_dot.sh') do
+  title "Ensure user's dot files are not group or world writable"
+  6_2_10_check_dot = <<-EOH
+    #!/bin/bash
+    # script to check and ensure user's dot files are not group or world writable
+    grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
+      if [ ! -d "$dir" ]; then
+        echo "The home directory ($dir) of user $user does not exist."
+      else
+        for file in $dir/.[A-Za-z0-9]*; do
+          if [ ! -h "$file" -a -f "$file" ]; then
+            fileperm=$(ls -ld $file | cut -f1 -d" ")
+
+            if [ $(echo $fileperm | cut -c6)  != "-" ]; then
+              echo "Group Write permission set on file $file"
+            fi
+            if [ $(echo $fileperm | cut -c9)  != "-" ]; then
+              echo "Other Write permission set on file $file"
+            fi
+          fi
+        done
+      fi
+    done
+  EOH
+  describe bash(6_2_10_check_dot) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.11' do
+control 'SCORED | 6.2.11 | PATCH' do
   impact 1.0
   title 'Ensure no users have .forward files'
-  describe command('sh ../files/scripts/6.2.11_check_forward.sh') do
+  6_2_11_check_forward = <<-EOH
+    #!/bin/bash
+    # script to check and ensure no users have .forward files
+    grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
+      if [ ! -d "$dir" ]; then
+        echo "The home directory ($dir) of user $user does not exist."
+      else
+        if [ ! -h "$dir/.forward" -a -f "$dir/.forward" ]; then
+          echo ".forward file $dir/.forward exists"
+        fi
+      fi
+    done
+  EOH
+  describe bash(6_2_11_check_forward) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.12' do
+control 'SCORED | 6.2.12 | PATCH' do
   impact 1.0
   title 'Ensure no users have .netrc files'
-  describe command('sh ../files/scripts/6.2.12_check_netrc.sh') do
+  6_2_12_check_netrc = <<-EOH
+    #!/bin/bash
+    # script to check and ensure no users have .netrc files
+    grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
+      if [ ! -d "$dir" ]; then
+        echo "The home directory ($dir) of user $user does not exist."
+      else
+        if [ ! -h "$dir/.netrc" -a -f "$dir/.netrc" ]; then
+          echo ".netrc file $dir/.netrc exists"
+        fi
+      fi
+    done
+  EOH
+  describe bash(6_2_12_check_netrc) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.14' do
+control 'SCORED | 6.2.14 | PATCH' do
   impact 1.0
   title 'Ensure no users have .rhosts files'
-  describe command('sh ../files/scripts/6.2.14_check_rhosts.sh') do
+  6_2_14_check_rhosts = <<-EOH
+    #!/bin/bash
+    # script to check and ensure no users have .rhosts files
+    grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
+      if [ ! -d "$dir" ]; then
+        echo "The home directory ($dir) of user $user does not exist."
+      else
+        for file in $dir/.rhosts; do
+          if [ ! -h "$file" -a -f "$file" ]; then
+            echo ".rhosts file in $dir"
+          fi
+        done
+      fi
+    done
+  EOH
+  describe bash(6_2_14_check_rhosts) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.15' do
+control 'SCORED | 6.2.15 | PATCH' do
   impact 1.0
   title 'Ensure all groups in /etc/passwd exist in /etc/group'
-  describe command('sh ../files/scripts/6.2.15_check_all_groups.sh') do
+  6_2_15_check_all_groups = <<-EOH
+    #!/bin/bash
+    # script to check and ensure all groups in /etc/passwd exist in /etc/group
+    for i in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
+      grep -q -P "^.*?:[^:]*:$i:" /etc/group
+      if [ $? -ne 0 ]; then
+        echo "Group $i is referenced by /etc/passwd but does not exist in /etc/group"
+      fi
+    done
+  EOH
+  describe bash(6_2_15_check_all_groups) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.16' do
+control 'SCORED | 6.2.16 | PATCH' do
   impact 1.0
   title 'Ensure no duplicate UIDs exist'
-  describe command('sh ../files/scripts/6.2.16_check_duplicate_uids.sh') do
+  6_2_16_check_duplicate_uids = <<-EOH
+    #!/bin/bash
+    # script to check and ensure no duplicate UIDs exist
+    cut -f3 -d":" /etc/passwd | sort -n | uniq -c | while read x ; do
+      [ -z "$x" ] && break
+      set - $x
+      if [ $1 -gt 1 ]; then
+        users=$(awk -F: '($3 == n) { print $1 }' n=$2 /etc/passwd | xargs)
+        echo "Duplicate UID ($2): $users"
+      fi
+    done
+  EOH
+  describe bash(6_2_16_check_duplicate_uids) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.17' do
+control 'SCORED | 6.2.17 | PATCH' do
   impact 1.0
   title 'Ensure no duplicate GIDs exist'
-  describe command('sh ../files/scripts/6.2.17_check_duplicate_gids.sh') do
+  6_2_17_check_duplicate_gids = <<-EOH
+    #!/bin/bash
+    # script to check and ensure no duplicate GIDs exist
+    cut -d: -f3 /etc/group | sort | uniq -d | while read x ; do
+        echo "Duplicate GID ($x) in /etc/group"
+    done
+  EOH
+  describe bash(6_2_17_check_duplicate_gids) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.18' do
+control 'SCORED | 6.2.18 | PATCH' do
   impact 1.0
   title 'Ensure no duplicate user names exist'
-  describe command('sh ../files/scripts/6.2.18_check_duplicate_user_names.sh') do
+  6_2_18_check_duplicate_user_names = <<-EOH
+    #!/bin/bash
+    # script to check and ensure no duplicate user names exist
+    cut -d: -f1 /etc/passwd | sort | uniq -d | while read x
+    do echo "Duplicate login name ${x} in /etc/passwd"
+    done
+  EOH
+  describe bash(6_2_18_check_duplicate_user_names) do
     its('stdout') { should match "" }
   end
 end
 
-control '6.2.19' do
+control 'SCORED | 6.2.19 | PATCH' do
   impact 1.0
   title 'Ensure no duplicate group names exist'
-  describe command('sh ../files/scripts/6.2.19_check_duplicate_groups.sh') do
+  6_2_19_check_duplicate_groups = <<-EOH
+    #!/bin/bash
+    # script to check and ensure no duplicate group names exist
+    cut -d: -f1 /etc/group | sort | uniq -d | while read x
+    do echo "Duplicate group name ${x} in /etc/group"
+    done
+  EOH
+  describe bash(6_2_19_check_duplicate_groups) do
     its('stdout') { should match "" }
   end
 end
