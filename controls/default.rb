@@ -900,6 +900,7 @@ control '3.2.4' do
   title 'Ensure suspicious packets are logged'
   describe kernel_parameter('net.ipv4.conf.all.log_martians') do
     its('value') { should eq 1 }
+  end
   describe kernel_parameter('net.ipv4.conf.default.log_martians') do
     its('value') { should eq 1 }
   end
@@ -2084,7 +2085,7 @@ end
 control 'SCORED | 6.2.7 | PATCH' do
   impact 1.0
   title "Ensure all user's home directories exist"
-  check_users_home_dir_exists = <<-EOH
+  ensure_all_users_home_dir_exist = <<-EOH
     #!/bin/bash
     # script to check and ensure all user's home directories exist
     grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
@@ -2107,7 +2108,7 @@ control 'SCORED | 6.2.7 | PATCH' do
       fi
     done
   EOH
-  describe bash(check_users_home_dir_exists) do
+  describe bash(ensure_all_users_home_dir_exist) do
     its('stdout') { should match "" }
   end
 end
@@ -2115,7 +2116,7 @@ end
 control 'SCORED | 6.2.8 | PATCH' do
   impact 1.0
   title "Ensure user's home directories permissions are 750 or more restrictive"
-  check_home_dir_permissions = <<-EOH
+  ensure_users_home_dir_permissions = <<-EOH
     #!/bin/bash
     # script to check and ensure user's home directories permissions are 750 or more restrictive
     grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
@@ -2138,7 +2139,7 @@ control 'SCORED | 6.2.8 | PATCH' do
       fi
     done
   EOH
-  describe bash(check_home_dir_permissions) do
+  describe bash(ensure_users_home_dir_permissions) do
     its('stdout') { should match "" }
   end
 end
@@ -2146,7 +2147,7 @@ end
 control 'SCORED | 6.2.9 | PATCH' do
   impact 1.0
   title 'Ensure users own their home directories'
-  check_user_own_their_home_dir = <<-EOH
+  ensure_users_own_their_home_dirs = <<-EOH
     #!/bin/bash
     # script to check and ensure users own their home directories
     grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
@@ -2160,7 +2161,7 @@ control 'SCORED | 6.2.9 | PATCH' do
      fi
     done
   EOH
-  describe bash(check_user_own_their_home_dir) do
+  describe bash(ensure_users_own_their_home_dirs) do
     its('stdout') { should match "" }
   end
 end
@@ -2168,7 +2169,7 @@ end
 control 'SCORED | 6.2.10 | PATCH' do
   impact 1.0
   title "Ensure user's dot files are not group or world writable"
-  check_dot = <<-EOH
+  ensure_users_dot_files_are_not_writable = <<-EOH
     #!/bin/bash
     # script to check and ensure user's dot files are not group or world writable
     grep -E -v '^(halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
@@ -2190,7 +2191,7 @@ control 'SCORED | 6.2.10 | PATCH' do
       fi
     done
   EOH
-  describe bash(check_dot) do
+  describe bash(ensure_users_dot_files_are_not_writable) do
     its('stdout') { should match "" }
   end
 end
@@ -2198,7 +2199,7 @@ end
 control 'SCORED | 6.2.11 | PATCH' do
   impact 1.0
   title 'Ensure no users have .forward files'
-  check_forward = <<-EOH
+  ensure_no_users_have_forward_files = <<-EOH
     #!/bin/bash
     # script to check and ensure no users have .forward files
     grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
@@ -2211,7 +2212,7 @@ control 'SCORED | 6.2.11 | PATCH' do
       fi
     done
   EOH
-  describe bash(check_forward) do
+  describe bash(ensure_no_users_have_forward_files) do
     its('stdout') { should match "" }
   end
 end
@@ -2219,7 +2220,7 @@ end
 control 'SCORED | 6.2.12 | PATCH' do
   impact 1.0
   title 'Ensure no users have .netrc files'
-  check_netrc = <<-EOH
+  ensure_no_users_have_netrc_files = <<-EOH
     #!/bin/bash
     # script to check and ensure no users have .netrc files
     grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
@@ -2232,7 +2233,7 @@ control 'SCORED | 6.2.12 | PATCH' do
       fi
     done
   EOH
-  describe bash(check_netrc) do
+  describe bash(ensure_no_users_have_netrc_files) do
     its('stdout') { should match "" }
   end
 end
@@ -2240,7 +2241,7 @@ end
 control 'SCORED | 6.2.14 | PATCH' do
   impact 1.0
   title 'Ensure no users have .rhosts files'
-  check_rhosts = <<-EOH
+  ensure_no_users_have_rhosts_files = <<-EOH
     #!/bin/bash
     # script to check and ensure no users have .rhosts files
     grep -E -v '^(root|halt|sync|shutdown)' /etc/passwd | awk -F: '($7 != "'"$(which nologin)"'" && $7 != "/bin/false") { print $1 " " $6 }' | while read user dir; do
@@ -2255,7 +2256,7 @@ control 'SCORED | 6.2.14 | PATCH' do
       fi
     done
   EOH
-  describe bash(check_rhosts) do
+  describe bash(ensure_no_users_have_rhosts_files) do
     its('stdout') { should match "" }
   end
 end
@@ -2263,7 +2264,7 @@ end
 control 'SCORED | 6.2.15 | PATCH' do
   impact 1.0
   title 'Ensure all groups in /etc/passwd exist in /etc/group'
-  check_all_groups = <<-EOH
+  ensure_all_groups_exists_in_etc_group = <<-EOH
     #!/bin/bash
     # script to check and ensure all groups in /etc/passwd exist in /etc/group
     for i in $(cut -s -d: -f4 /etc/passwd | sort -u ); do
@@ -2273,7 +2274,7 @@ control 'SCORED | 6.2.15 | PATCH' do
       fi
     done
   EOH
-  describe bash(check_all_groups) do
+  describe bash(ensure_all_groups_exists_in_etc_group) do
     its('stdout') { should match "" }
   end
 end
@@ -2281,7 +2282,7 @@ end
 control 'SCORED | 6.2.16 | PATCH' do
   impact 1.0
   title 'Ensure no duplicate UIDs exist'
-  check_duplicate_uids = <<-EOH
+  ensure_no_duplicate_uids_exist = <<-EOH
     #!/bin/bash
     # script to check and ensure no duplicate UIDs exist
     cut -f3 -d":" /etc/passwd | sort -n | uniq -c | while read x ; do
@@ -2293,7 +2294,7 @@ control 'SCORED | 6.2.16 | PATCH' do
       fi
     done
   EOH
-  describe bash(check_duplicate_uids) do
+  describe bash(ensure_no_duplicate_uids_exist) do
     its('stdout') { should match "" }
   end
 end
@@ -2301,14 +2302,14 @@ end
 control 'SCORED | 6.2.17 | PATCH' do
   impact 1.0
   title 'Ensure no duplicate GIDs exist'
-  check_duplicate_gids = <<-EOH
+  ensure_no_duplicate_gids_exist = <<-EOH
     #!/bin/bash
     # script to check and ensure no duplicate GIDs exist
     cut -d: -f3 /etc/group | sort | uniq -d | while read x ; do
         echo "Duplicate GID ($x) in /etc/group"
     done
   EOH
-  describe bash(check_duplicate_gids) do
+  describe bash(ensure_no_duplicate_gids_exist) do
     its('stdout') { should match "" }
   end
 end
@@ -2316,14 +2317,14 @@ end
 control 'SCORED | 6.2.18 | PATCH' do
   impact 1.0
   title 'Ensure no duplicate user names exist'
-  check_duplicate_user_names = <<-EOH
+  ensure_no_duplicate_user_names_exist = <<-EOH
     #!/bin/bash
     # script to check and ensure no duplicate user names exist
     cut -d: -f1 /etc/passwd | sort | uniq -d | while read x
     do echo "Duplicate login name ${x} in /etc/passwd"
     done
   EOH
-  describe bash(check_duplicate_user_names) do
+  describe bash(ensure_no_duplicate_user_names_exist) do
     its('stdout') { should match "" }
   end
 end
@@ -2331,14 +2332,14 @@ end
 control 'SCORED | 6.2.19 | PATCH' do
   impact 1.0
   title 'Ensure no duplicate group names exist'
-  check_duplicate_groups = <<-EOH
+  ensure_no_duplicate_group_names_exist = <<-EOH
     #!/bin/bash
     # script to check and ensure no duplicate group names exist
     cut -d: -f1 /etc/group | sort | uniq -d | while read x
     do echo "Duplicate group name ${x} in /etc/group"
     done
   EOH
-  describe bash(check_duplicate_groups) do
+  describe bash(ensure_no_duplicate_group_names_exist) do
     its('stdout') { should match "" }
   end
 end
